@@ -16,6 +16,7 @@ import java.io.BufferedReader // For reading file
 import java.io.File // For file checking
 import java.io.FileOutputStream // For writing file
 import java.io.InputStreamReader // For reading file
+import java.io.FileNotFoundException // For file not found
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -147,8 +148,38 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadMoods(): Map<String, String> {
+        val moodMap = mutableMapOf<String, String>()
+        val file = File(filesDir, moodFileName)
+
+        if (!file.exists()) {
+            Log.d("loadMoods", "${moodFileName} 파일 없음. 빈 맵 반환.")
+            return moodMap
+        }
+
+        try {
+            openFileInput(moodFileName).bufferedReader().useLines { lines ->
+                lines.forEach {
+                    val parts = it.split(":")
+                    if (parts.size == 2) {
+                        moodMap[parts[0]] = parts[1]
+                    }
+                }
+            }
+            Log.d("loadMoods", "기분 로드 완료: ${moodMap.size}개 항목.")
+        } catch (e: FileNotFoundException) {
+            Log.e("loadMoods", "파일을 찾을 수 없음: $moodFileName", e)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.e("loadMoods", "기분 로드 실패", e)
+            Toast.makeText(this, "기분 로드에 실패했습니다.", Toast.LENGTH_SHORT).show()
+        }
+        return moodMap
+    }
+
     private fun drawCalendar() {
         gridCalendar.removeAllViews()
+        val loadedMoods = loadMoods() // 저장된 기분 데이터 로드
 
         val calendar = currentCalendar.clone() as Calendar
         calendar.set(Calendar.DAY_OF_MONTH, 1)
@@ -190,14 +221,24 @@ class MainActivity : AppCompatActivity() {
             params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
             tvDay.layoutParams = params
 
-            val todayCalendar = Calendar.getInstance()
-            if (calendar.get(Calendar.YEAR) == todayCalendar.get(Calendar.YEAR) &&
-                calendar.get(Calendar.MONTH) == todayCalendar.get(Calendar.MONTH) &&
-                day == todayCalendar.get(Calendar.DAY_OF_MONTH)) {
-                tvDay.setTextColor(Color.BLUE)
-                tvDay.setBackgroundColor(Color.parseColor("#FFFFE0")) // 밝은 노란색 (LightYellow)
-            }
+            // 현재 그리고 있는 날짜에 대한 YYYY-MM-DD 형식의 키 생성
+            val tempCal = calendar.clone() as Calendar
+            tempCal.set(Calendar.DAY_OF_MONTH, day)
+            val dateKey = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(tempCal.time)
 
+            // 해당 날짜에 저장된 기분 색상 적용
+            loadedMoods[dateKey]?.let {
+                try {
+                    tvDay.setBackgroundColor(Color.parseColor(it))
+                } catch (e: IllegalArgumentException) {
+                    Log.e("drawCalendar", "잘못된 색상 코드: $it for date $dateKey", e)
+                    // 잘못된 색상 코드일 경우 기본 배경 또는 오늘 날짜 강조 로직 적용
+                    setTodayHighlight(tvDay, calendar, day)
+                }
+            } ?: run {
+                // 기분이 기록되지 않은 날짜는 오늘 날짜 강조 로직 적용
+                setTodayHighlight(tvDay, calendar, day)
+            }
             gridCalendar.addView(tvDay)
         }
 
@@ -214,6 +255,20 @@ class MainActivity : AppCompatActivity() {
             params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
             emptyView.layoutParams = params
             gridCalendar.addView(emptyView)
+        }
+    }
+
+    // 오늘 날짜 강조를 위한 헬퍼 함수
+    private fun setTodayHighlight(textView: TextView, calendar: Calendar, day: Int) {
+        val todayCalendar = Calendar.getInstance()
+        if (calendar.get(Calendar.YEAR) == todayCalendar.get(Calendar.YEAR) &&
+            calendar.get(Calendar.MONTH) == todayCalendar.get(Calendar.MONTH) &&
+            day == todayCalendar.get(Calendar.DAY_OF_MONTH)) {
+            textView.setTextColor(Color.BLUE)
+            textView.setBackgroundColor(Color.parseColor("#FFFFE0")) // 밝은 노란색
+        } else {
+            textView.setBackgroundColor(Color.TRANSPARENT) // 다른 날짜는 기본 배경
+            textView.setTextColor(Color.BLACK) // 다른 날짜는 기본 텍스트 색상
         }
     }
 }
