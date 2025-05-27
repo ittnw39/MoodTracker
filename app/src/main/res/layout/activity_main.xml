@@ -50,6 +50,16 @@
         <!-- 달력 날짜들은 동적으로 추가됩니다. -->
     </GridLayout>
 
+    <TextView
+        android:id="@+id/tvSelectedMoodInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="8dp"
+        android:textSize="16sp"
+        android:textStyle="italic"
+        tools:text="선택된 날짜의 기분: 행복 (#FFEB3B)" />
+
     <Button
         android:id="@+id/btnLogMood"
         android:layout_width="match_parent"

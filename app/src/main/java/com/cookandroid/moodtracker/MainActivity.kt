@@ -20,6 +20,7 @@ import java.io.FileNotFoundException // For file not found
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+// import com.cookandroid.moodtracker.MoodListAdapter // MoodListAdapter 임포트 추가 - 위치는 자동으로 정렬될 수 있음
 
 class MainActivity : AppCompatActivity() {
 
@@ -28,8 +29,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnNextMonth: Button
     private lateinit var gridCalendar: GridLayout
     private lateinit var btnLogMood: Button
+    private lateinit var tvSelectedMoodInfo: TextView // 새로 추가된 TextView 참조
 
     private lateinit var currentCalendar: Calendar
+    private var selectedDateCalendar: Calendar? = null // 사용자가 클릭한 날짜를 저장할 Calendar 인스턴스
 
     // 기분 데이터 정의 (이름 to 색상 코드)
     private val moods = mapOf(
@@ -51,29 +54,43 @@ class MainActivity : AppCompatActivity() {
         btnNextMonth = findViewById(R.id.btnNextMonth)
         gridCalendar = findViewById(R.id.gridCalendar)
         btnLogMood = findViewById(R.id.btnLogMood)
+        tvSelectedMoodInfo = findViewById(R.id.tvSelectedMoodInfo) // 참조 연결
 
         currentCalendar = Calendar.getInstance()
+        selectedDateCalendar = currentCalendar.clone() as Calendar // 초기 선택된 날짜는 오늘
 
         updateCurrentMonthText()
+        updateSelectedMoodInfo(selectedDateCalendar!!)
         drawCalendar()
 
         // 이전 달 버튼 클릭 이벤트
         btnPrevMonth.setOnClickListener {
             currentCalendar.add(Calendar.MONTH, -1)
+            selectedDateCalendar = currentCalendar.clone() as Calendar // 월 이동 시 해당 월의 1일로 초기화 (또는 현재 일 유지)
+            selectedDateCalendar!!.set(Calendar.DAY_OF_MONTH, currentCalendar.get(Calendar.DAY_OF_MONTH)) // 현재 '일' 유지
             updateCurrentMonthText()
+            updateSelectedMoodInfo(selectedDateCalendar!!)
             drawCalendar()
         }
 
         // 다음 달 버튼 클릭 이벤트
         btnNextMonth.setOnClickListener {
             currentCalendar.add(Calendar.MONTH, 1)
+            selectedDateCalendar = currentCalendar.clone() as Calendar
+            selectedDateCalendar!!.set(Calendar.DAY_OF_MONTH, currentCalendar.get(Calendar.DAY_OF_MONTH)) // 현재 '일' 유지
             updateCurrentMonthText()
+            updateSelectedMoodInfo(selectedDateCalendar!!)
             drawCalendar()
         }
 
         // '기분 기록하기' 버튼 클릭 이벤트
         btnLogMood.setOnClickListener {
-            showMoodLogDialog()
+            selectedDateCalendar?.let {
+                showMoodLogDialog(it)
+            } ?: run {
+                // 기본적으로 오늘 날짜로 다이얼로그를 띄우거나, 날짜를 먼저 선택하라는 메시지 표시
+                showMoodLogDialog(Calendar.getInstance()) 
+            }
         }
     }
 
@@ -82,29 +99,55 @@ class MainActivity : AppCompatActivity() {
         tvCurrentMonth.text = sdf.format(currentCalendar.time)
     }
 
-    private fun showMoodLogDialog() {
-        val dayFormat = SimpleDateFormat("d", Locale.getDefault())
-        val currentDay = dayFormat.format(currentCalendar.time) // 현재 선택된 '일'을 가져옴
-        
-        val titleDate = SimpleDateFormat("yyyy년 M월 d일", Locale.getDefault()).format(currentCalendar.time)
+    private fun updateSelectedMoodInfo(calendar: Calendar) {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val dateKey = sdf.format(calendar.time)
+        val moodColor = loadMoods()[dateKey]
+        val moodName = moods.entries.find { it.value == moodColor }?.key
 
-        val selectedMoodIndex = intArrayOf(0) 
+        if (moodName != null && moodColor != null) {
+            tvSelectedMoodInfo.text = "${sdf.format(calendar.time)}: $moodName ($moodColor)"
+        } else {
+            tvSelectedMoodInfo.text = "${sdf.format(calendar.time)}: 기록된 기분 없음"
+        }
+    }
+
+    private fun showMoodLogDialog(dateToLog: Calendar) {
+        val titleDate = SimpleDateFormat("yyyy년 M월 d일", Locale.getDefault()).format(dateToLog.time)
+        val dateKey = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(dateToLog.time)
+
+        val loadedMoods = loadMoods()
+        val existingMoodColor = loadedMoods[dateKey]
+        var currentSelectedPosition = 0 // 기본 선택 위치
+        if (existingMoodColor != null) {
+            val existingMoodName = moods.entries.find { it.value == existingMoodColor }?.key
+            if (existingMoodName != null) {
+                val index = moodNames.indexOf(existingMoodName)
+                if (index != -1) {
+                    currentSelectedPosition = index
+                }
+            }
+        }
+
+        val adapter = MoodListAdapter(this, moods, moodNames, currentSelectedPosition)
 
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("${titleDate} 기분 선택") // 제목에 '일'까지 포함
-        builder.setSingleChoiceItems(moodNames, selectedMoodIndex[0]) { _, which ->
-            selectedMoodIndex[0] = which
+        builder.setTitle("${titleDate} 기분 선택")
+        // setSingleChoiceItems 대신 setAdapter 사용
+        builder.setSingleChoiceItems(adapter, currentSelectedPosition) { dialog, which ->
+            adapter.setSelectedPosition(which) // 어댑터에 선택된 위치 업데이트
+            // selectedMoodIndex[0] = which -> 이제 어댑터가 선택 상태를 관리
         }
         builder.setPositiveButton("확인") { _, _ ->
-            val selectedMoodName = moodNames[selectedMoodIndex[0]]
+            val selectedPosition = adapter.getSelectedPosition()
+            val selectedMoodName = moodNames[selectedPosition]
             val selectedMoodColor = moods[selectedMoodName]
-            // 날짜 형식을 YYYY-MM-DD로 일관되게 사용
-            val selectedDateKey = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(currentCalendar.time)
 
             if (selectedMoodColor != null) {
-                saveMood(selectedDateKey, selectedMoodColor)
-                Toast.makeText(this, "${selectedDateKey} : $selectedMoodName 기분이 저장되었습니다.", Toast.LENGTH_SHORT).show()
-                drawCalendar() 
+                saveMood(dateKey, selectedMoodColor)
+                Toast.makeText(this, "${dateKey} : $selectedMoodName 기분이 저장되었습니다.", Toast.LENGTH_SHORT).show()
+                updateSelectedMoodInfo(dateToLog)
+                drawCalendar()
             } else {
                 Toast.makeText(this, "오류: 기분 색상을 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
             }
@@ -124,19 +167,17 @@ class MainActivity : AppCompatActivity() {
                 openFileInput(moodFileName).bufferedReader().useLines { lines ->
                     lines.forEach { line ->
                         if (line.startsWith("$date:")) {
-                            newMoodData.add(moodEntry) // 기존 날짜면 새로운 기분으로 교체
+                            newMoodData.add(moodEntry)
                             entryUpdated = true
                         } else {
-                            newMoodData.add(line) // 다른 날짜는 그대로 유지
+                            newMoodData.add(line)
                         }
                     }
                 }
             }
-            if (!entryUpdated) { // 기존 날짜에 대한 항목이 없었으면 새로 추가
+            if (!entryUpdated) {
                 newMoodData.add(moodEntry)
             }
-
-            // 파일에 전체 데이터 다시 쓰기
             openFileOutput(moodFileName, Context.MODE_PRIVATE).use {
                 it.write(newMoodData.joinToString("\n").toByteArray())
             }
@@ -179,13 +220,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun drawCalendar() {
         gridCalendar.removeAllViews()
-        val loadedMoods = loadMoods() // 저장된 기분 데이터 로드
+        val loadedMoods = loadMoods()
 
-        val calendar = currentCalendar.clone() as Calendar
-        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        val displayCalendar = currentCalendar.clone() as Calendar // 현재 달력 표시용
+        displayCalendar.set(Calendar.DAY_OF_MONTH, 1)
 
-        val firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
-        val lastDayOfMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+        val firstDayOfWeek = displayCalendar.get(Calendar.DAY_OF_WEEK)
+        val lastDayOfMonth = displayCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
 
         val daysOfWeek = arrayOf("일", "월", "화", "수", "목", "금", "토")
         for (dayName in daysOfWeek) {
@@ -210,7 +251,13 @@ class MainActivity : AppCompatActivity() {
             gridCalendar.addView(emptyView)
         }
 
+        val today = Calendar.getInstance()
+
         for (day in 1..lastDayOfMonth) {
+            val dayCellCalendar = displayCalendar.clone() as Calendar
+            dayCellCalendar.set(Calendar.DAY_OF_MONTH, day)
+            val dateKey = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(dayCellCalendar.time)
+
             val tvDay = TextView(this)
             tvDay.text = day.toString()
             tvDay.gravity = Gravity.CENTER
@@ -221,31 +268,36 @@ class MainActivity : AppCompatActivity() {
             params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
             tvDay.layoutParams = params
 
-            // 현재 그리고 있는 날짜에 대한 YYYY-MM-DD 형식의 키 생성
-            val tempCal = calendar.clone() as Calendar
-            tempCal.set(Calendar.DAY_OF_MONTH, day)
-            val dateKey = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(tempCal.time)
+            // 날짜 클릭 리스너 설정
+            tvDay.setOnClickListener {
+                if (dayCellCalendar.after(today) && !isSameDay(dayCellCalendar, today)) {
+                    Toast.makeText(this, "미래 날짜의 기분은 기록할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                } else {
+                    selectedDateCalendar = dayCellCalendar.clone() as Calendar
+                    updateSelectedMoodInfo(selectedDateCalendar!!)
+                    // (선택) 클릭된 날짜를 시각적으로 표시 (예: 배경색 변경)
+                    // drawCalendar() // 클릭 시 달력 전체를 다시 그릴 필요는 없을 수도 있음. 선택된 셀만 강조.
+                }
+            }
+            
+            // 기분 기록하기 버튼은 항상 마지막으로 선택된 날짜(selectedDateCalendar)로 동작.
+            // 달력의 날짜 클릭 시 selectedDateCalendar가 업데이트 되고, tvSelectedMoodInfo도 업데이트 됨.
+            // 그 후 기분 기록하기 버튼을 누르면 showMoodLogDialog(selectedDateCalendar)가 호출되어 해당 날짜의 기분을 기록.
 
-            // 해당 날짜에 저장된 기분 색상 적용
             loadedMoods[dateKey]?.let {
                 try {
                     tvDay.setBackgroundColor(Color.parseColor(it))
                 } catch (e: IllegalArgumentException) {
                     Log.e("drawCalendar", "잘못된 색상 코드: $it for date $dateKey", e)
-                    // 잘못된 색상 코드일 경우 기본 배경 또는 오늘 날짜 강조 로직 적용
-                    setTodayHighlight(tvDay, calendar, day)
+                    setTodayHighlightOrSelection(tvDay, dayCellCalendar, day)
                 }
             } ?: run {
-                // 기분이 기록되지 않은 날짜는 오늘 날짜 강조 로직 적용
-                setTodayHighlight(tvDay, calendar, day)
+                setTodayHighlightOrSelection(tvDay, dayCellCalendar, day)
             }
             gridCalendar.addView(tvDay)
         }
 
-        val totalCells = 42 // 7열 * 6행, 요일 표시 행 제외하고 35 또는 42
-        val currentCellsInDateGrid = (firstDayOfWeek - 1) + lastDayOfMonth
-        // 요일 표시를 위한 한 줄을 제외하고 5줄 또는 6줄을 만들기 위한 로직으로 변경 필요
-        // 현재는 요일 표시 포함해서 6줄 (42칸)을 강제로 채움. UI에 따라 조절 필요.
+        val totalCells = 42
         val cellsInDayGrid = daysOfWeek.size + (firstDayOfWeek - 1) + lastDayOfMonth
         for(i in 0 until (totalCells - cellsInDayGrid)){
             val emptyView = TextView(this)
@@ -258,17 +310,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // 오늘 날짜 강조를 위한 헬퍼 함수
-    private fun setTodayHighlight(textView: TextView, calendar: Calendar, day: Int) {
-        val todayCalendar = Calendar.getInstance()
-        if (calendar.get(Calendar.YEAR) == todayCalendar.get(Calendar.YEAR) &&
-            calendar.get(Calendar.MONTH) == todayCalendar.get(Calendar.MONTH) &&
-            day == todayCalendar.get(Calendar.DAY_OF_MONTH)) {
+    private fun isSameDay(cal1: Calendar, cal2: Calendar): Boolean {
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+               cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH) &&
+               cal1.get(Calendar.DAY_OF_MONTH) == cal2.get(Calendar.DAY_OF_MONTH)
+    }
+
+    // 오늘 날짜 강조 및 선택된 날짜 강조 (필요시) 를 위한 헬퍼 함수
+    private fun setTodayHighlightOrSelection(textView: TextView, calendarForDay: Calendar, day: Int) {
+        val today = Calendar.getInstance()
+        // 선택된 날짜 강조 (selectedDateCalendar 와 비교)
+        if (selectedDateCalendar != null && isSameDay(calendarForDay, selectedDateCalendar!!)) {
+            textView.setBackgroundColor(Color.LTGRAY) // 예시: 선택된 날짜는 연한 회색
+            textView.setTextColor(Color.BLACK)
+        } else if (isSameDay(calendarForDay, today)) { // 오늘 날짜 강조
             textView.setTextColor(Color.BLUE)
             textView.setBackgroundColor(Color.parseColor("#FFFFE0")) // 밝은 노란색
-        } else {
-            textView.setBackgroundColor(Color.TRANSPARENT) // 다른 날짜는 기본 배경
-            textView.setTextColor(Color.BLACK) // 다른 날짜는 기본 텍스트 색상
+        } else { // 그 외의 날짜
+            textView.setBackgroundColor(Color.TRANSPARENT)
+            textView.setTextColor(Color.BLACK)
         }
     }
 }
