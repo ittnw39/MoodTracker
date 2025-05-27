@@ -1,43 +1,37 @@
-트package com.cookandroid.moodtracker
+package com.cookandroid.moodtracker
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.cookandroid.moodtracker.ui.theme.MoodTrackerTheme
+import android.widget.Button
+import android.widget.GridLayout
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var btnPrevMonth: Button
+    private lateinit var tvCurrentMonth: TextView
+    private lateinit var btnNextMonth: Button
+    private lateinit var gridCalendar: GridLayout
+    private lateinit var btnLogMood: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            MoodTrackerTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    Greeting("Android")
-                }
-            }
-        }
-    }
-}
+        setContentView(R.layout.activity_main)
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+        btnPrevMonth = findViewById(R.id.btnPrevMonth)
+        tvCurrentMonth = findViewById(R.id.tvCurrentMonth)
+        btnNextMonth = findViewById(R.id.btnNextMonth)
+        gridCalendar = findViewById(R.id.gridCalendar)
+        btnLogMood = findViewById(R.id.btnLogMood)
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MoodTrackerTheme {
-        Greeting("Android")
+        // 현재 날짜로 tvCurrentMonth 초기화
+        val calendar = Calendar.getInstance()
+        val sdf = SimpleDateFormat("yyyy년 MM월", Locale.getDefault())
+        tvCurrentMonth.text = sdf.format(calendar.time)
+
+        // TODO: 월 이동 및 기분 기록 로직 구현
     }
 }
