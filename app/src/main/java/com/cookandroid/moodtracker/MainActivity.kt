@@ -3,6 +3,7 @@ package com.cookandroid.moodtracker
 import android.content.Context // Context for file IO
 import android.content.DialogInterface
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.util.Log // Log for debugging
 import android.view.Gravity
@@ -20,8 +21,7 @@ import java.io.FileNotFoundException // For file not found
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.ColorDrawable // ColorDrawable 임포트 추가
+// import com.cookandroid.moodtracker.MoodListAdapter // MoodListAdapter 임포트 추가 - 위치는 자동으로 정렬될 수 있음
 
 class MainActivity : AppCompatActivity() {
 
@@ -67,19 +67,16 @@ class MainActivity : AppCompatActivity() {
         // 이전 달 버튼 클릭 이벤트
         btnPrevMonth.setOnClickListener {
             currentCalendar.add(Calendar.MONTH, -1)
-            // selectedDateCalendar 값은 변경하지 않습니다.
-            // 사용자가 명시적으로 클릭한 날짜를 유지하거나, 초기 상태(오늘)를 유지합니다.
             updateCurrentMonthText()
-            updateSelectedMoodInfo(selectedDateCalendar!!) // selectedDateCalendar는 null이 아니라고 가정
+            updateSelectedMoodInfo(selectedDateCalendar!!)
             drawCalendar()
         }
 
         // 다음 달 버튼 클릭 이벤트
         btnNextMonth.setOnClickListener {
             currentCalendar.add(Calendar.MONTH, 1)
-            // selectedDateCalendar 값은 변경하지 않습니다.
             updateCurrentMonthText()
-            updateSelectedMoodInfo(selectedDateCalendar!!) // selectedDateCalendar는 null이 아니라고 가정
+            updateSelectedMoodInfo(selectedDateCalendar!!)
             drawCalendar()
         }
 
@@ -89,7 +86,7 @@ class MainActivity : AppCompatActivity() {
                 showMoodLogDialog(it)
             } ?: run {
                 // 기본적으로 오늘 날짜로 다이얼로그를 띄우거나, 날짜를 먼저 선택하라는 메시지 표시
-                showMoodLogDialog(Calendar.getInstance()) 
+                showMoodLogDialog(Calendar.getInstance())
             }
         }
     }
@@ -257,7 +254,6 @@ class MainActivity : AppCompatActivity() {
             val dayCellCalendar = displayCalendar.clone() as Calendar
             dayCellCalendar.set(Calendar.DAY_OF_MONTH, day)
             val dateKey = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(dayCellCalendar.time)
-            val moodColorHex = loadedMoods[dateKey]
 
             val tvDay = TextView(this)
             tvDay.text = day.toString()
@@ -278,17 +274,28 @@ class MainActivity : AppCompatActivity() {
                     selectedDateCalendar = dayCellCalendar.clone() as Calendar
                     updateSelectedMoodInfo(selectedDateCalendar!!)
                     
-                    // 전체를 다시 그리는 것이 로직을 단순하게 유지하고 모든 상태를 정확히 반영
-                    // 만약 성능 문제가 발생한다면 특정 셀만 업데이트 하는 방식으로 변경 고려 가능
+                    // 최적화: 전체 달력을 다시 그리는 대신 이전 선택 셀과 새 선택 셀만 업데이트 할 수도 있지만,
+                    // 현재 구조에서는 전체를 다시 그리는 것이 로직을 단순하게 유지하고 모든 상태를 정확히 반영합니다.
+                    // 만약 성능 문제가 발생한다면 특정 셀만 업데이트 하는 방식으로 변경 고려 가능합니다.
+                    // 만약 성능 문제가 발생한다면 특정 셀만 업데이트 하는 방식으로 변경 고려 가능합니다.
                     drawCalendar() // 선택 변경 시 달력 전체를 다시 그려서 테두리 및 하이라이트 업데이트
                 }
             }
-            
+
             // 기분 기록하기 버튼은 항상 마지막으로 선택된 날짜(selectedDateCalendar)로 동작.
             // 달력의 날짜 클릭 시 selectedDateCalendar가 업데이트 되고, tvSelectedMoodInfo도 업데이트 됨.
             // 그 후 기분 기록하기 버튼을 누르면 showMoodLogDialog(selectedDateCalendar)가 호출되어 해당 날짜의 기분을 기록.
 
-            setTodayHighlightOrSelection(tvDay, dayCellCalendar, moodColorHex)
+            loadedMoods[dateKey]?.let {
+                try {
+                    setTodayHighlightOrSelection(tvDay, dayCellCalendar, it)
+                } catch (e: IllegalArgumentException) {
+                    Log.e("drawCalendar", "잘못된 색상 코드: $it for date $dateKey", e)
+                    setTodayHighlightOrSelection(tvDay, dayCellCalendar, null)
+                }
+            } ?: run {
+                setTodayHighlightOrSelection(tvDay, dayCellCalendar, null)
+            }
             gridCalendar.addView(tvDay)
         }
 
@@ -296,7 +303,7 @@ class MainActivity : AppCompatActivity() {
         val cellsInDayGrid = daysOfWeek.size + (firstDayOfWeek - 1) + lastDayOfMonth
         for(i in 0 until (totalCells - cellsInDayGrid)){
             val emptyView = TextView(this)
-             val params = GridLayout.LayoutParams()
+            val params = GridLayout.LayoutParams()
             params.width = 0
             params.height = GridLayout.LayoutParams.WRAP_CONTENT
             params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
@@ -319,7 +326,7 @@ class MainActivity : AppCompatActivity() {
         // 기본 텍스트 색상 설정
         textView.setTextColor(Color.BLACK)
 
-        // 1. 배경색 결정 로직
+        // 1. 배경색 결정 로직 (이전과 동일)
         var currentBgColor: Int
         if (moodColorHex != null) { // 기분 기록이 있는 경우
             try {
@@ -355,7 +362,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 3. 오늘 날짜 텍스트 색상 적용
+        // 3. 오늘 날짜 텍스트 색상 적용 (이전과 동일)
         if (isSameDay(calendarForDay, today)) {
             textView.setTextColor(Color.BLUE)
         }

@@ -18,8 +18,8 @@
     - 하단에 Button 1개를 추가하여 기분 기록 기능을 실행 ('기분 기록하기', ID: btnLogMood).
     - 적용 내용: LinearLayout의 orientation 속성, GridLayout의 columnCount 속성 을 활용하여 UI 뼈대를 만들기. 각 위젯에 id를 부여.
 - [x] MainActivity.kt 위젯 참조:
-    - MainActivity.kt에서 findViewById를 사용하여 activity_main.xml에 배치된 위젯들의 참조 변수를 선언하고 연결합니다.
-    - 적용 내용: Kotlin 변수 선언, findViewById를 통한 위젯 접근 을 사용합니다.
+    - MainActivity.kt에서 findViewById를 사용하여 activity_main.xml에 배치된 위젯들의 참조 변수를 선언하고 연결.
+    - 적용 내용: Kotlin 변수 선언, findViewById를 통한 위젯 접근.
 
 ### Task 2: 달력 UI 동적 생성 로직 구현 (완료)
 
@@ -29,13 +29,13 @@
     - Kotlin 코드에서 Calendar 클래스를 사용하여 현재 연도, 월, 해당 월의 시작 요일, 마지막 날짜 등을 계산하는 로직을 구현.
     - 적용 내용: Kotlin 기본 문법 (변수, 조건문, 연산)  및 Calendar 클래스를 활용.
 - [x] drawCalendar 함수 구현:
-    - GridLayout의 모든 자식 뷰를 제거합니다.
+    - GridLayout의 모든 자식 뷰를 제거.
     - 계산된 날짜 정보를 바탕으로, for 반복문을 사용하여 날짜 수만큼 TextView 위젯을 동적으로 생성.
     - 생성된 TextView에 날짜 텍스트를 설정하고 GridLayout에 추가.
     - 적용 내용: Kotlin 코드로 뷰 생성 및 GridLayout 활용.
 - [x] 월 이동 버튼 이벤트 처리:
     - '이전 달', '다음 달' Button에 setOnClickListener를 설정.
-    - 버튼 클릭 시 현재 표시된 월/년을 변경하고 tvCurrentMonth 텍스트를 업데이트한 후, drawCalendar 함수를 다시 호출하여 달력을 새로 그림림.
+    - 버튼 클릭 시 현재 표시된 월/년을 변경하고 tvCurrentMonth 텍스트를 업데이트한 후, drawCalendar 함수를 다시 호출하여 달력을 새로 그림.
     - 적용 내용: 버튼 이벤트 처리, 람다식.
 
 ### Task 3: 기분 선택 다이얼로그 구현 (완료)
@@ -43,19 +43,19 @@
 주요 목표: '기분 기록하기' 버튼 클릭 시, 기분을 선택할 수 있는 대화상자 표시.
 세부 작업:
 - [x] 기분 데이터 정의:
-    - 앱에서 사용할 기분 목록과 각 기분에 해당하는 색상 코드(Hex)를 Kotlin 코드 내에 배열 또는 Map으로 정의합니다. (예: val moods = mapOf("행복" to "#FFFF00", "슬픔" to "#0000FF"))
+    - 앱에서 사용할 기분 목록과 각 기분에 해당하는 색상 코드(Hex)를 Kotlin 코드 내에 배열 또는 Map으로 정의. (예: val moods = mapOf("행복" to "#FFFF00", "슬픔" to "#0000FF"))
     - 적용 내용: Kotlin 배열  또는 컬렉션.
 - [x] '기분 기록하기' 버튼 이벤트 처리:
-    - btnLogMood Button에 setOnClickListener를 설정합니다.
+    - btnLogMood Button에 setOnClickListener를 설정.
 - [x] 대화상자 생성:
-    - 버튼 클릭 리스너 내에서 AlertDialog.Builder를 사용하여 대화상자를 생성합니다.
-    - 대화상자 제목 (setTitle), 기분 목록 (setItems 또는 setSingleChoiceItems)을 설정합니다. setSingleChoiceItems를 사용하여 RadioButton 형태로 표시합니다.
-    - '확인'(setPositiveButton)과 '취소'(setNegativeButton) 버튼을 추가합니다.
-    - 적용 내용: 기본 대화상자  및 목록 대화상자  생성 방법을 활용합니다.
+    - 버튼 클릭 리스너 내에서 AlertDialog.Builder를 사용하여 대화상자를 생성.
+    - 대화상자 제목 (setTitle), 기분 목록 (setItems 또는 setSingleChoiceItems)을 설정. setSingleChoiceItems를 사용하여 RadioButton 형태로 표시.
+    - '확인'(setPositiveButton)과 '취소'(setNegativeButton) 버튼을 추가.
+    - 적용 내용: 기본 대화상자 및 목록 대화상자 생성 방법 활용.
 - [x] '확인' 버튼 로직:
-    - '확인' 버튼 클릭 시, 선택된 기분(색상)과 현재 날짜(또는 달력에서 선택된 날짜)를 가져와 saveMood 함수를 호출합니다.
-    - Toast를 사용하여 "기분이 저장되었습니다."와 같은 피드백 메시지를 표시합니다.
-    - drawCalendar 함수를 호출하여 달력을 갱신합니다.
+    - '확인' 버튼 클릭 시, 선택된 기분(색상)과 현재 날짜(또는 달력에서 선택된 날짜)를 가져와 saveMood 함수를 호출.
+    - Toast를 사용하여 "기분이 저장되었습니다."와 같은 피드백 메시지를 표시.
+    - drawCalendar 함수를 호출하여 달력을 갱신.
     - 적용 내용: 대화상자 버튼 리스너, Toast 사용법.
 
 ### Task 4: 기분 데이터 저장 기능 구현 (완료)
@@ -63,28 +63,28 @@
 주요 목표: 사용자가 선택한 기분 데이터를 내부 저장소에 영구적으로 저장.
 세부 작업:
 - [x] saveMood 함수 구현:
-    - 날짜와 기분(색상) 데이터를 파라미터로 받습니다.
-    - openFileOutput을 사용하여 'mood_data.txt'와 같은 이름의 파일을 엽니다. (날짜별 덮어쓰기 방식)
-    - FileOutputStream을 사용하여 YYYY-MM-DD:ColorHexCode 형식의 문자열을 파일에 씁니다.
-    - 파일 쓰기 후 스트림을 닫습니다.
-    - 적용 내용: 내장 메모리 파일 쓰기, '간단 일기장' 앱의 파일 저장 방식 을 참조합니다.
+    - 날짜와 기분(색상) 데이터를 파라미터로 받기.
+    - openFileOutput을 사용하여 'mood_data.txt'와 같은 이름의 파일을 열기. (날짜별 덮어쓰기 방식)
+    - FileOutputStream을 사용하여 YYYY-MM-DD:ColorHexCode 형식의 문자열을 파일에 쓰기.
+    - 파일 쓰기 후 스트림 닫기.
+    - 적용 내용: 내장 메모리 파일 쓰기, '간단 일기장' 앱의 파일 저장 방식을 참조.
 - [x] 예외 처리:
-    - 파일 입출력 시 발생할 수 있는 오류를 처리하기 위해 try~catch 문을 사용합니다.
+    - 파일 입출력 시 발생할 수 있는 오류를 처리하기 위해 try~catch 문을 사용.
 
 ### Task 5: 기분 데이터 로드 및 달력 색상 적용 (완료)
 
 주요 목표: 저장된 기분 데이터를 불러와 달력 UI에 색상으로 반영.
 세부 작업:
 - [x] loadMoods 함수 구현:
-    - openFileInput을 사용하여 'mood_data.txt' 파일을 엽니다.
-    - FileInputStream과 BufferedReader 등을 사용하여 파일 내용을 줄 단위로 읽습니다.
-    - 읽어온 각 줄을 파싱하여 날짜를 키로, 색상 코드를 값으로 하는 Map<String, String> 형태의 데이터 구조에 저장합니다.
-    - 파일이 없을 경우를 대비한 예외 처리를 합니다.
-    - 적용 내용: 내장 메모리 파일 읽기, '간단 일기장' 앱의 파일 읽기 방식 을 참조합니다.
+    - openFileInput을 사용하여 'mood_data.txt' 파일을 열기.
+    - FileInputStream과 BufferedReader 등을 사용하여 파일 내용을 줄 단위로 읽기.
+    - 읽어온 각 줄을 파싱하여 날짜를 키로, 색상 코드를 값으로 하는 Map<String, String> 형태의 데이터 구조에 저장.
+    - 파일이 없을 경우를 대비한 예외 처리를 하기.
+    - 적용 내용: 내장 메모리 파일 읽기, '간단 일기장' 앱의 파일 읽기 방식을 참조.
 - [x] drawCalendar 함수 수정:
-    - drawCalendar 함수 시작 시 loadMoods 함수를 호출하여 기분 데이터를 로드합니다.
-    - GridLayout에 날짜 TextView를 추가할 때, 해당 날짜가 로드된 Map에 있는지 확인합니다.
-    - 데이터가 존재하면, 해당 TextView의 setBackgroundColor(Color.parseColor(colorHexCode)) 메소드를 호출하여 배경색을 설정합니다.
+    - drawCalendar 함수 시작 시 loadMoods 함수를 호출하여 기분 데이터를 로드.
+    - GridLayout에 날짜 TextView를 추가할 때, 해당 날짜가 로드된 Map에 있는지 확인.
+    - 데이터가 존재하면, 해당 TextView의 setBackgroundColor(Color.parseColor(colorHexCode)) 메소드를 호출하여 배경색을 설정.
     - 적용 내용: Kotlin Map 사용, 뷰의 속성 변경.
 
 ### Task 6: UI 개선 및 기능 테스트 (완료)
@@ -104,7 +104,7 @@
         - 사용자가 클릭하여 선택한 날짜는 검은색 테두리(예: 2dp)로 표시.
         - 기분 색상이 있는 경우, 해당 배경색 위에 테두리가 그려짐.
         - 월 이동 시 선택된 날짜의 테두리 표시는 유지되지만, 다른 달의 동일 '일'에는 적용되지 않음.
-    - [ ] GridLayout 내 TextView들의 padding, margin, gravity 속성을 조정하여 달력 형태를 보기 좋게 만들기(선택)
+    - [ ] GridLayout 내 TextView들의 padding, margin, gravity 속성을 조정하여 달력 형태를 보기 좋게 만들기 (선택)
     - 적용 내용: View 클래스의 XML 속성, Paint와 Canvas를 이용한 간단한 도형 그리기 또는 단순히 View의 배경색 설정, `GradientDrawable` 사용.
 - [x] 기능 테스트:
     - [x] 월 이동이 정확히 동작하는지 확인.
@@ -117,7 +117,7 @@
 
 주요 목표: 앱의 안정성을 확보하고 최종 버전을 완성.
 세부 작업:
-- [ ] 버그 수정: 테스트 과정에서 발견된 모든 버그를 수정정.
+- [ ] 버그 수정: 테스트 과정에서 발견된 모든 버그를 수정.
 - [ ] 코드 정리: 불필요한 코드를 제거하고, 가독성을 높이기 위해 주석을 추가.
 - [ ] 아이콘 및 이름 설정: AndroidManifest.xml 파일을 수정하여 앱 아이콘과 이름을 설정.
 - [ ] 최종 테스트: 모든 기능을 처음부터 끝까지 다시 한번 테스트. 
