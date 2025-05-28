@@ -20,7 +20,8 @@ import java.io.FileNotFoundException // For file not found
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-// import com.cookandroid.moodtracker.MoodListAdapter // MoodListAdapter 임포트 추가 - 위치는 자동으로 정렬될 수 있음
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.ColorDrawable // ColorDrawable 임포트 추가
 
 class MainActivity : AppCompatActivity() {
 
@@ -66,20 +67,19 @@ class MainActivity : AppCompatActivity() {
         // 이전 달 버튼 클릭 이벤트
         btnPrevMonth.setOnClickListener {
             currentCalendar.add(Calendar.MONTH, -1)
-            selectedDateCalendar = currentCalendar.clone() as Calendar // 월 이동 시 해당 월의 1일로 초기화 (또는 현재 일 유지)
-            selectedDateCalendar!!.set(Calendar.DAY_OF_MONTH, currentCalendar.get(Calendar.DAY_OF_MONTH)) // 현재 '일' 유지
+            // selectedDateCalendar 값은 변경하지 않습니다.
+            // 사용자가 명시적으로 클릭한 날짜를 유지하거나, 초기 상태(오늘)를 유지합니다.
             updateCurrentMonthText()
-            updateSelectedMoodInfo(selectedDateCalendar!!)
+            updateSelectedMoodInfo(selectedDateCalendar!!) // selectedDateCalendar는 null이 아니라고 가정
             drawCalendar()
         }
 
         // 다음 달 버튼 클릭 이벤트
         btnNextMonth.setOnClickListener {
             currentCalendar.add(Calendar.MONTH, 1)
-            selectedDateCalendar = currentCalendar.clone() as Calendar
-            selectedDateCalendar!!.set(Calendar.DAY_OF_MONTH, currentCalendar.get(Calendar.DAY_OF_MONTH)) // 현재 '일' 유지
+            // selectedDateCalendar 값은 변경하지 않습니다.
             updateCurrentMonthText()
-            updateSelectedMoodInfo(selectedDateCalendar!!)
+            updateSelectedMoodInfo(selectedDateCalendar!!) // selectedDateCalendar는 null이 아니라고 가정
             drawCalendar()
         }
 
@@ -257,6 +257,7 @@ class MainActivity : AppCompatActivity() {
             val dayCellCalendar = displayCalendar.clone() as Calendar
             dayCellCalendar.set(Calendar.DAY_OF_MONTH, day)
             val dateKey = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(dayCellCalendar.time)
+            val moodColorHex = loadedMoods[dateKey]
 
             val tvDay = TextView(this)
             tvDay.text = day.toString()
@@ -273,10 +274,13 @@ class MainActivity : AppCompatActivity() {
                 if (dayCellCalendar.after(today) && !isSameDay(dayCellCalendar, today)) {
                     Toast.makeText(this, "미래 날짜의 기분은 기록할 수 없습니다.", Toast.LENGTH_SHORT).show()
                 } else {
+                    val previouslySelectedDate = selectedDateCalendar?.clone() as Calendar?
                     selectedDateCalendar = dayCellCalendar.clone() as Calendar
                     updateSelectedMoodInfo(selectedDateCalendar!!)
-                    // (선택) 클릭된 날짜를 시각적으로 표시 (예: 배경색 변경)
-                    // drawCalendar() // 클릭 시 달력 전체를 다시 그릴 필요는 없을 수도 있음. 선택된 셀만 강조.
+                    
+                    // 전체를 다시 그리는 것이 로직을 단순하게 유지하고 모든 상태를 정확히 반영
+                    // 만약 성능 문제가 발생한다면 특정 셀만 업데이트 하는 방식으로 변경 고려 가능
+                    drawCalendar() // 선택 변경 시 달력 전체를 다시 그려서 테두리 및 하이라이트 업데이트
                 }
             }
             
@@ -284,16 +288,7 @@ class MainActivity : AppCompatActivity() {
             // 달력의 날짜 클릭 시 selectedDateCalendar가 업데이트 되고, tvSelectedMoodInfo도 업데이트 됨.
             // 그 후 기분 기록하기 버튼을 누르면 showMoodLogDialog(selectedDateCalendar)가 호출되어 해당 날짜의 기분을 기록.
 
-            loadedMoods[dateKey]?.let {
-                try {
-                    tvDay.setBackgroundColor(Color.parseColor(it))
-                } catch (e: IllegalArgumentException) {
-                    Log.e("drawCalendar", "잘못된 색상 코드: $it for date $dateKey", e)
-                    setTodayHighlightOrSelection(tvDay, dayCellCalendar, day)
-                }
-            } ?: run {
-                setTodayHighlightOrSelection(tvDay, dayCellCalendar, day)
-            }
+            setTodayHighlightOrSelection(tvDay, dayCellCalendar, moodColorHex)
             gridCalendar.addView(tvDay)
         }
 
@@ -316,19 +311,55 @@ class MainActivity : AppCompatActivity() {
                cal1.get(Calendar.DAY_OF_MONTH) == cal2.get(Calendar.DAY_OF_MONTH)
     }
 
-    // 오늘 날짜 강조 및 선택된 날짜 강조 (필요시) 를 위한 헬퍼 함수
-    private fun setTodayHighlightOrSelection(textView: TextView, calendarForDay: Calendar, day: Int) {
+    private fun setTodayHighlightOrSelection(textView: TextView, calendarForDay: Calendar, moodColorHex: String?) {
         val today = Calendar.getInstance()
-        // 선택된 날짜 강조 (selectedDateCalendar 와 비교)
-        if (selectedDateCalendar != null && isSameDay(calendarForDay, selectedDateCalendar!!)) {
-            textView.setBackgroundColor(Color.LTGRAY) // 예시: 선택된 날짜는 연한 회색
-            textView.setTextColor(Color.BLACK)
-        } else if (isSameDay(calendarForDay, today)) { // 오늘 날짜 강조
-            textView.setTextColor(Color.BLUE)
-            textView.setBackgroundColor(Color.parseColor("#FFFFE0")) // 밝은 노란색
-        } else { // 그 외의 날짜
-            textView.setBackgroundColor(Color.TRANSPARENT)
-            textView.setTextColor(Color.BLACK)
+        val finalDrawable = GradientDrawable()
+        finalDrawable.shape = GradientDrawable.RECTANGLE
+
+        // 기본 텍스트 색상 설정
+        textView.setTextColor(Color.BLACK)
+
+        // 1. 배경색 결정 로직
+        var currentBgColor: Int
+        if (moodColorHex != null) { // 기분 기록이 있는 경우
+            try {
+                currentBgColor = Color.parseColor(moodColorHex)
+            } catch (e: IllegalArgumentException) {
+                Log.e("HighlightLogic", "잘못된 기분 색상 코드: $moodColorHex for date ${calendarForDay.time}", e)
+                currentBgColor = Color.TRANSPARENT // 오류 시 투명
+            }
+        } else { // 기분 기록이 없는 경우 (moodColorHex == null)
+            if (isSameDay(calendarForDay, today) && 
+                (selectedDateCalendar == null || !isSameDay(calendarForDay, selectedDateCalendar!!))) {
+                currentBgColor = Color.parseColor("#FFFFE0") 
+            } else {
+                currentBgColor = Color.TRANSPARENT
+            }
         }
+        finalDrawable.setColor(currentBgColor)
+
+        // 2. 선택된 날짜 테두리 적용 로직 수정
+        if (selectedDateCalendar != null) {
+            val isSelectedDateActuallyToday = isSameDay(selectedDateCalendar!!, today) // selectedDateCalendar가 실제 '오늘'인지 확인
+
+            if (isSelectedDateActuallyToday) {
+                // 선택된 날짜가 '오늘'인 경우 -> 현재 그리는 셀(calendarForDay)도 '오늘'이어야 테두리 표시
+                if (isSameDay(calendarForDay, today)) {
+                    finalDrawable.setStroke(3, Color.BLACK)
+                }
+            } else {
+                // 선택된 날짜가 '오늘'이 아닌 다른 날짜인 경우 -> 현재 그리는 셀이 그 '선택된 날짜'와 일치하면 테두리 표시
+                if (isSameDay(calendarForDay, selectedDateCalendar!!)) {
+                    finalDrawable.setStroke(3, Color.BLACK)
+                }
+            }
+        }
+
+        // 3. 오늘 날짜 텍스트 색상 적용
+        if (isSameDay(calendarForDay, today)) {
+            textView.setTextColor(Color.BLUE)
+        }
+
+        textView.background = finalDrawable
     }
 }
