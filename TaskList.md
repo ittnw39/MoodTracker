@@ -5,18 +5,18 @@
 주요 목표: 앱 개발 환경 설정 및 사용자가 상호작용할 기본 화면 구성.
 세부 작업:
 - [x] Android Studio 프로젝트 생성:
-    - 새로운 Android Studio 프로젝트를 'MoodCalendar' 이름으로 생성합니다. (사용자 실제 프로젝트 이름: MoodTracker)
-    - 적용 내용: Project4_1 생성 과정 과 같이 프로젝트 이름, 패키지 이름, Kotlin 언어, 최소 API 레벨 (예: API 16: Android 4.1)을 설정합니다.
+    - 새로운 Android Studio 프로젝트를 'MoodCalendar' 이름으로 생성.
+    - 적용 내용: Project4_1 생성 과정 과 같이 프로젝트 이름, 패키지 이름, Kotlin 언어, 최소 API 레벨 (예: API 16: Android 4.1)을 설정.
 - [x] activity_main.xml 레이아웃 설계:
-    - 최상위 레이아웃으로 LinearLayout (수직 방향)을 사용합니다.
-    - 상단에 LinearLayout (수평 방향)을 추가하여 월 이동 UI를 구성합니다.
+    - 최상위 레이아웃으로 LinearLayout (수직 방향)을 사용.
+    - 상단에 LinearLayout (수평 방향)을 추가하여 월 이동 UI를 구성.
         - Button 1개 ('이전 달', ID: btnPrevMonth)
         - TextView 1개 (현재 '년/월' 표시, ID: tvCurrentMonth)
         - Button 1개 ('다음 달', ID: btnNextMonth)
-    - 중단에 GridLayout을 추가하여 달력 본체를 구성합니다 (7열, ID: gridCalendar).
+    - 중단에 GridLayout을 추가하여 달력 본체를 구성 (7열, ID: gridCalendar).
     - 하단에 TextView 1개 (선택된 날짜의 기분 정보 표시, ID: tvSelectedMoodInfo) 추가.
-    - 하단에 Button 1개를 추가하여 기분 기록 기능을 실행합니다 ('기분 기록하기', ID: btnLogMood).
-    - 적용 내용: LinearLayout의 orientation 속성, GridLayout의 columnCount 속성 을 활용하여 UI 뼈대를 만듭니다. 각 위젯에 id를 부여합니다.
+    - 하단에 Button 1개를 추가하여 기분 기록 기능을 실행 ('기분 기록하기', ID: btnLogMood).
+    - 적용 내용: LinearLayout의 orientation 속성, GridLayout의 columnCount 속성 을 활용하여 UI 뼈대를 만들기. 각 위젯에 id를 부여.
 - [x] MainActivity.kt 위젯 참조:
     - MainActivity.kt에서 findViewById를 사용하여 activity_main.xml에 배치된 위젯들의 참조 변수를 선언하고 연결합니다.
     - 적용 내용: Kotlin 변수 선언, findViewById를 통한 위젯 접근 을 사용합니다.
@@ -26,16 +26,16 @@
 주요 목표: 현재 날짜를 기준으로 GridLayout에 날짜를 표시하고, 월 이동 기능 구현.
 세부 작업:
 - [x] 날짜 계산 로직:
-    - Kotlin 코드에서 Calendar 클래스를 사용하여 현재 연도, 월, 해당 월의 시작 요일, 마지막 날짜 등을 계산하는 로직을 구현합니다.
-    - 적용 내용: Kotlin 기본 문법 (변수, 조건문, 연산)  및 Calendar 클래스 (Week 8-1 실습의 데이트피커 설정 부분 참고 )를 활용합니다.
+    - Kotlin 코드에서 Calendar 클래스를 사용하여 현재 연도, 월, 해당 월의 시작 요일, 마지막 날짜 등을 계산하는 로직을 구현.
+    - 적용 내용: Kotlin 기본 문법 (변수, 조건문, 연산)  및 Calendar 클래스를 활용.
 - [x] drawCalendar 함수 구현:
     - GridLayout의 모든 자식 뷰를 제거합니다.
-    - 계산된 날짜 정보를 바탕으로, for 반복문을 사용하여 날짜 수만큼 TextView 위젯을 동적으로 생성합니다.
-    - 생성된 TextView에 날짜 텍스트를 설정하고 GridLayout에 추가합니다.
-    - 적용 내용: Kotlin 코드로 뷰 생성 (Week 5 실습 5-1 참고 ) 및 GridLayout 활용.
+    - 계산된 날짜 정보를 바탕으로, for 반복문을 사용하여 날짜 수만큼 TextView 위젯을 동적으로 생성.
+    - 생성된 TextView에 날짜 텍스트를 설정하고 GridLayout에 추가.
+    - 적용 내용: Kotlin 코드로 뷰 생성 및 GridLayout 활용.
 - [x] 월 이동 버튼 이벤트 처리:
-    - '이전 달', '다음 달' Button에 setOnClickListener를 설정합니다.
-    - 버튼 클릭 시 현재 표시된 월/년을 변경하고 tvCurrentMonth 텍스트를 업데이트한 후, drawCalendar 함수를 다시 호출하여 달력을 새로 그립니다.
+    - '이전 달', '다음 달' Button에 setOnClickListener를 설정.
+    - 버튼 클릭 시 현재 표시된 월/년을 변경하고 tvCurrentMonth 텍스트를 업데이트한 후, drawCalendar 함수를 다시 호출하여 달력을 새로 그림림.
     - 적용 내용: 버튼 이벤트 처리, 람다식.
 
 ### Task 3: 기분 선택 다이얼로그 구현 (완료)
@@ -87,7 +87,7 @@
     - 데이터가 존재하면, 해당 TextView의 setBackgroundColor(Color.parseColor(colorHexCode)) 메소드를 호출하여 배경색을 설정합니다.
     - 적용 내용: Kotlin Map 사용, 뷰의 속성 변경.
 
-### Task 6: UI 개선 및 기능 테스트 (일부 완료)
+### Task 6: UI 개선 및 기능 테스트 (완료)
 
 주요 목표: 앱의 시각적 완성도를 높이고, 핵심 기능의 오류를 점검.
 세부 작업:
@@ -97,22 +97,27 @@
         - 미래 날짜 클릭 시 Toast 메시지로 알림.
         - 선택된 날짜의 기분 정보를 하단 `tvSelectedMoodInfo` TextView에 표시 (기록된 기분 또는 "기록 없음").
         - 기분 기록 다이얼로그에 선택된 날짜가 반영되고, 해당 날짜에 기분이 이미 기록되어 있으면 기본 선택값으로 표시.
-    - [ ] GridLayout 내 TextView들의 padding, margin, gravity 속성을 조정하여 달력 형태를 보기 좋게 만듭니다.
-    - [ ] 기분 선택 RadioButton 옆에 해당 색상을 작은 원이나 사각형으로 표시합니다.
-    - 적용 내용: View 클래스의 XML 속성, Paint와 Canvas를 이용한 간단한 도형 그리기 (필요시 Week 10 ) 또는 단순히 View의 배경색 설정.
-- [ ] 기능 테스트:
-    - 월 이동이 정확히 동작하는지 확인합니다.
-    - 기분 저장 및 로드가 정상적으로 이루어지는지 확인합니다.
-    - 다양한 날짜에 기분을 기록하고 달력에 올바르게 표시되는지 확인합니다.
-    - 기존 기분을 수정(덮어쓰기)하는 시나리오를 테스트합니다.
-    - 날짜 클릭 및 선택된 날짜 관련 기능이 정확히 동작하는지 테스트합니다.
-- [ ] (리팩토링) 파일 입출력 작업 백그라운드 스레드로 이전 (예: Coroutines 사용)
+    - [x] 기분 선택 다이얼로그 아이템에 색상 원 표시:
+        - 커스텀 레이아웃(`dialog_mood_item.xml`) 및 커스텀 어댑터(`MoodListAdapter.kt`)를 사용하여 각 기분 항목 옆에 해당 색상을 원으로 표시.
+    - [x] 오늘 날짜 강조 및 선택된 날짜 표시 로직 개선:
+        - 오늘 날짜 강조(파란색 텍스트, 밝은 노란색 배경)는 현재 달력 화면이 실제 오늘 날짜가 포함된 달일 경우, 해당 일자에만 적용.
+        - 사용자가 클릭하여 선택한 날짜는 검은색 테두리(예: 2dp)로 표시.
+        - 기분 색상이 있는 경우, 해당 배경색 위에 테두리가 그려짐.
+        - 월 이동 시 선택된 날짜의 테두리 표시는 유지되지만, 다른 달의 동일 '일'에는 적용되지 않음.
+    - [ ] GridLayout 내 TextView들의 padding, margin, gravity 속성을 조정하여 달력 형태를 보기 좋게 만들기(선택)
+    - 적용 내용: View 클래스의 XML 속성, Paint와 Canvas를 이용한 간단한 도형 그리기 또는 단순히 View의 배경색 설정, `GradientDrawable` 사용.
+- [x] 기능 테스트:
+    - [x] 월 이동이 정확히 동작하는지 확인.
+    - [x] 기분 저장 및 로드가 정상적으로 이루어지는지 확인.
+    - [x] 다양한 날짜에 기분을 기록하고 달력에 올바르게 표시되는지 확인.
+    - [x] 기존 기분을 수정(덮어쓰기)하는 시나리오를 테스트.
+    - [x] 날짜 클릭 및 선택된 날짜 관련 기능(테두리, 오늘 날짜 강조, 정보 표시)이 정확히 동작하는지 테스트.
 
 ### Task 7: 최종 점검, 버그 수정 및 마무리
 
 주요 목표: 앱의 안정성을 확보하고 최종 버전을 완성.
 세부 작업:
-- [ ] 버그 수정: 테스트 과정에서 발견된 모든 버그를 수정합니다.
-- [ ] 코드 정리: 불필요한 코드를 제거하고, 가독성을 높이기 위해 주석을 추가합니다.
-- [ ] 아이콘 및 이름 설정: AndroidManifest.xml 파일을 수정하여 앱 아이콘과 이름을 설정합니다.
-- [ ] 최종 테스트: 모든 기능을 처음부터 끝까지 다시 한번 테스트합니다. 
+- [ ] 버그 수정: 테스트 과정에서 발견된 모든 버그를 수정정.
+- [ ] 코드 정리: 불필요한 코드를 제거하고, 가독성을 높이기 위해 주석을 추가.
+- [ ] 아이콘 및 이름 설정: AndroidManifest.xml 파일을 수정하여 앱 아이콘과 이름을 설정.
+- [ ] 최종 테스트: 모든 기능을 처음부터 끝까지 다시 한번 테스트. 
