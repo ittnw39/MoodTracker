@@ -25,7 +25,9 @@
             android:id="@+id/btnPrevMonth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="이전 달" />
+            android:text="이전 달"
+            android:backgroundTint="@color/light_blue"
+            android:textColor="@color/black" />
 
         <TextView
             android:id="@+id/tvCurrentMonth"
@@ -41,7 +43,9 @@
             android:id="@+id/btnNextMonth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="다음 달" />
+            android:text="다음 달"
+            android:backgroundTint="@color/light_blue"
+            android:textColor="@color/black" />
     </LinearLayout>
 
     <GridLayout
@@ -73,6 +77,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:text="기분 기록하기" />
+        android:text="기분 기록하기"
+        android:backgroundTint="@color/light_blue"
+        android:textColor="@color/black" />
 
 </LinearLayout> 

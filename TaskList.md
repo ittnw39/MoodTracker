@@ -157,8 +157,17 @@
         - "이번 주" 계산 로직 (월요일 시작, 일요일 종료, 오늘 이후 날짜 미포함).
         - 직접 날짜 선택 또는 월별 이동 시 `Spinner` 선택 초기화.
 - [ ] **통계 화면 UI/UX 개선 (`activity_stats.xml`, `StatsActivity.kt`):**
-    - Spinner 및 날짜 선택 영역의 배치, 간격 등 시각적 요소 개선.
-    - 기타 사용자 경험 향상을 위한 조정.
+    - [x] **앱 전체 UI에 하늘색 테마 일관성 적용 및 가독성 확보:**
+        - `themes.xml`: `colorPrimaryVariant`, `colorSecondary`, `colorOnSecondary`, `statusBarColor`, `windowLightStatusBar`, `navigationBarColor` 설정 추가 및 수정. `tools` 네임스페이스 추가.
+        - `activity_main.xml`: `btnPrevMonth`, `btnNextMonth`, `btnLogMood` 버튼에 하늘색 배경 및 검은색 텍스트 적용.
+        - `activity_stats.xml`: `btnPrevStatsMonth`, `btnNextStatsMonth`, `btnStartDate`, `btnEndDate` 버튼에 하늘색 배경 및 검은색 텍스트 적용.
+        - `activity_manage_moods.xml`: FAB 버튼 색상 확인 (기존 설정 적절).
+        - `dialog_add_mood.xml`: `btnSelectColor` 버튼에 하늘색 배경 및 검은색 텍스트 적용.
+        - `item_custom_mood.xml`: 수정/삭제 `ImageButton`의 아이콘 `tint`를 검은색으로 설정.
+        - `item_default_mood.xml`: "(기본)" `TextView`의 텍스트 색상을 검은색으로 변경.
+        - `dialog_mood_item.xml`: 테마를 잘 따를 것으로 확인되어 별도 수정 없음.
+    - [ ] Spinner 및 날짜 선택 영역의 배치, 간격 등 시각적 요소 개선.
+    - [ ] 기타 사용자 경험 향상을 위한 조정.
 적용 내용: UI 디자인, 사용자 경험 최적화.
 
 ### Task 10: 최종 점검, 버그 수정 및 마무리

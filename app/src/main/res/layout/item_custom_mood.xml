@@ -26,7 +26,8 @@
         android:id="@+id/ibEditMood"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_menu_edit" 
+        android:src="@android:drawable/ic_menu_edit"
+        app:tint="@color/black" 
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="감정 수정"
         android:padding="8dp"/>
@@ -36,6 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@android:drawable/ic_menu_delete"
+        app:tint="@color/black" 
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="감정 삭제"
         android:padding="8dp"
