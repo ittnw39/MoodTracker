@@ -23,6 +23,13 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name=".StatsActivity"
+            android:label="기분 통계"
+            android:parentActivityName=".MainActivity">
+            <!-- android:parentActivityName을 사용하려면 MainActivity의 theme에 NoActionBar가 아니어야 함 -->
+            <!-- 또는 직접 ActionBar에 뒤로가기 버튼 구현 필요 -->
+        </activity>
     </application>
 
 </manifest>

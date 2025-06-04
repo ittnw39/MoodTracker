@@ -13,6 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar // Toolbar 임포트 추가
 import java.io.BufferedReader // For reading file
 import java.io.File // For file checking
 import java.io.FileOutputStream // For writing file
@@ -21,10 +22,14 @@ import java.io.FileNotFoundException // For file not found
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import android.view.Menu // 추가
+import android.view.MenuItem // 추가
+import android.content.Intent // 추가
 // import com.cookandroid.moodtracker.MoodListAdapter // MoodListAdapter 임포트 추가 - 위치는 자동으로 정렬될 수 있음
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var toolbarMain: Toolbar // Toolbar 참조 변수 추가
     private lateinit var btnPrevMonth: Button
     private lateinit var tvCurrentMonth: TextView
     private lateinit var btnNextMonth: Button
@@ -49,6 +54,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        toolbarMain = findViewById(R.id.toolbarMain) // Toolbar 참조 연결
+        setSupportActionBar(toolbarMain) // Toolbar를 ActionBar로 설정
+        supportActionBar?.title = "월별 기분 달력" // ActionBar 타이틀 설정 (선택 사항)
 
         btnPrevMonth = findViewById(R.id.btnPrevMonth)
         tvCurrentMonth = findViewById(R.id.tvCurrentMonth)
@@ -88,6 +97,22 @@ class MainActivity : AppCompatActivity() {
                 // 기본적으로 오늘 날짜로 다이얼로그를 띄우거나, 날짜를 먼저 선택하라는 메시지 표시
                 showMoodLogDialog(Calendar.getInstance())
             }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_stats -> {
+                val intent = Intent(this, StatsActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
