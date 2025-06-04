@@ -25,12 +25,13 @@
             android:id="@+id/tvStatsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="월별 기분 통계"
+            android:text="기분 통계"
             android:textSize="20sp"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="8dp" />
 
         <LinearLayout
+            android:id="@+id/layoutMonthNavigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -59,6 +60,52 @@
                 android:layout_height="wrap_content"
                 android:text="다음 달" />
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutDateRangeSelection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnStartDate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="시작 날짜 선택" />
+
+                <Button
+                    android:id="@+id/btnEndDate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="종료 날짜 선택" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvSelectedDateRange"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="선택된 기간: 전체"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <Spinner
+            android:id="@+id/spinnerPredefinedRanges"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:minHeight="48dp" />
 
         <com.github.mikephil.charting.charts.PieChart
             android:id="@+id/pieChartStats"

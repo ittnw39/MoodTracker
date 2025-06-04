@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">MoodTracker</string>
+    <string-array name="predefined_date_ranges">
+        <item>기간 선택...</item>
+        <item>최근 7일</item>
+        <item>최근 30일</item>
+        <item>이번 주</item>
+    </string-array>
 </resources>
