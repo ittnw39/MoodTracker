@@ -2,6 +2,8 @@ package com.cookandroid.moodtracker
 
 import android.content.Context
 import android.util.Log
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -13,6 +15,7 @@ import java.util.UUID
 class CustomMoodRepository(private val context: Context) {
 
     private val customMoodsFilename = "custom_moods.json"
+    private val gson = Gson()
 
     // 사용자 정의 감정 목록을 로드 (파일이 없거나 비었으면 빈 리스트 반환)
     fun loadCustomMoods(): MutableList<CustomMood> {
@@ -25,32 +28,24 @@ class CustomMoodRepository(private val context: Context) {
             if (jsonString.isBlank()) {
                 return mutableListOf()
             }
-            // TODO: JSON 문자열을 List<CustomMood>로 파싱하는 로직 구현 (예: Gson 사용)
-            // 예시 (실제로는 파싱 로직 필요):
-            // val type = object : TypeToken<MutableList<CustomMood>>() {}.type
-            // return Gson().fromJson(jsonString, type) ?: mutableListOf()
-            Log.w("CustomMoodRepository", "loadCustomMoods: JSON 파싱 로직 미구현")
-            // 임시 반환 (테스트용)
-            // return mutableListOf(CustomMood(generateUniqueId(), "테스트 감정", "#FF00FF"))
+            val type = object : TypeToken<MutableList<CustomMood>>() {}.type
+            return gson.fromJson(jsonString, type) ?: mutableListOf()
         } catch (e: IOException) {
-            Log.e("CustomMoodRepository", "사용자 정의 감정 로드 실패", e)
+            Log.e("CustomMoodRepository", "사용자 정의 감정 로드 실패 (IO)", e)
+        } catch (e: Exception) { // JsonSyntaxException 등 기타 예외 처리
+            Log.e("CustomMoodRepository", "사용자 정의 감정 로드 실패 (JSON 파싱 등)", e)
+            // 문제가 있는 파일은 삭제하거나 백업 후 빈 리스트 반환 고려
+            // file.delete() // 또는 file.renameTo(File(context.filesDir, "$customMoodsFilename.bak"))
         }
-        return mutableListOf() // 오류 발생 시 빈 리스트
+        return mutableListOf()
     }
 
     // 사용자 정의 감정 목록을 파일에 저장
     fun saveCustomMoods(moods: List<CustomMood>) {
         try {
-            // TODO: List<CustomMood>를 JSON 문자열로 변환하는 로직 구현 (예: Gson 사용)
-            // val jsonString = Gson().toJson(moods)
-            val jsonString = "" // 임시 값
-            if (moods.isNotEmpty() && jsonString.isBlank()){
-                 Log.w("CustomMoodRepository", "saveCustomMoods: JSON 변환 로직 미구현 또는 빈 문자열 생성됨 (저장 건너뜀)")
-                 // 실제로는 여기서 moods를 jsonString으로 만들어야 함
-            } else {
-                context.openFileOutput(customMoodsFilename, Context.MODE_PRIVATE).use {
-                    it.write(jsonString.toByteArray())
-                }
+            val jsonString = gson.toJson(moods)
+            context.openFileOutput(customMoodsFilename, Context.MODE_PRIVATE).use {
+                it.write(jsonString.toByteArray())
             }
         } catch (e: IOException) {
             Log.e("CustomMoodRepository", "사용자 정의 감정 저장 실패", e)
@@ -59,9 +54,14 @@ class CustomMoodRepository(private val context: Context) {
 
     fun addCustomMood(name: String, colorHex: String): CustomMood {
         val moods = loadCustomMoods()
+        // ID 중복 체크 (이론적으로 UUID는 거의 중복되지 않으나, 방어적으로 추가 가능)
+        // 색상값 중복 허용 여부는 정책에 따라 결정 (현재는 허용)
+        // 감정 이름 중복 허용 여부도 정책에 따라 결정 (현재는 허용, 단 UI에서 사용자에게 혼동을 줄 수 있음)
+
         val newMood = CustomMood(id = generateUniqueId(), name = name, colorHex = colorHex)
         moods.add(newMood)
         saveCustomMoods(moods)
+        Log.d("CustomMoodRepository", "새 감정 추가됨: $newMood, 총 ${moods.size}개")
         return newMood
     }
 
@@ -81,6 +81,7 @@ class CustomMoodRepository(private val context: Context) {
         val removed = moods.removeAll { it.id == moodId }
         if (removed) {
             saveCustomMoods(moods)
+            Log.d("CustomMoodRepository", "감정 삭제됨: ID $moodId, 남은 감정 ${moods.size}개")
         }
         return removed
     }
