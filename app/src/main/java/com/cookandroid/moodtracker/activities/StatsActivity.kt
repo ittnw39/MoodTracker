@@ -193,7 +193,7 @@ class StatsActivity : AppCompatActivity() {
     }
 
     private fun showDatePickerDialog(isStartDate: Boolean) {
-        val calendar = Calendar.getInstance()
+        // val calendar = Calendar.getInstance()
         val initialCalendar = if (isStartDate && selectedStartDate != null) {
             selectedStartDate!!
         } else if (!isStartDate && selectedEndDate != null) {
@@ -316,7 +316,7 @@ class StatsActivity : AppCompatActivity() {
         val moodCounts = mutableMapOf<String, Int>()
         val sdfFileParse = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-        var chartTitleDateString = ""
+        var chartTitleDateString: String
 
         if (selectedStartDate != null && selectedEndDate != null) {
             if (selectedStartDate!!.after(selectedEndDate!!)) {

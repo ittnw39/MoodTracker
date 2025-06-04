@@ -156,7 +156,7 @@
         - `OnItemSelectedListener` 구현: 선택된 기간에 따라 `selectedStartDate`, `selectedEndDate` 업데이트 및 차트/텍스트 갱신.
         - "이번 주" 계산 로직 (월요일 시작, 일요일 종료, 오늘 이후 날짜 미포함).
         - 직접 날짜 선택 또는 월별 이동 시 `Spinner` 선택 초기화.
-- [ ] **통계 화면 UI/UX 개선 (`activity_stats.xml`, `StatsActivity.kt`):**
+- [x] **통계 화면 UI/UX 개선 (`activity_stats.xml`, `StatsActivity.kt`):**
     - [x] **앱 전체 UI에 하늘색 테마 일관성 적용 및 가독성 확보:**
         - `themes.xml`: `colorPrimaryVariant`, `colorSecondary`, `colorOnSecondary`, `statusBarColor`, `windowLightStatusBar`, `navigationBarColor` 설정 추가 및 수정. `tools` 네임스페이스 추가.
         - `activity_main.xml`: `btnPrevMonth`, `btnNextMonth`, `btnLogMood` 버튼에 하늘색 배경 및 검은색 텍스트 적용.
@@ -166,8 +166,8 @@
         - `item_custom_mood.xml`: 수정/삭제 `ImageButton`의 아이콘 `tint`를 검은색으로 설정.
         - `item_default_mood.xml`: "(기본)" `TextView`의 텍스트 색상을 검은색으로 변경.
         - `dialog_mood_item.xml`: 테마를 잘 따를 것으로 확인되어 별도 수정 없음.
-    - [ ] Spinner 및 날짜 선택 영역의 배치, 간격 등 시각적 요소 개선.
-    - [ ] 기타 사용자 경험 향상을 위한 조정.
+    - [ ] Spinner 및 날짜 선택 영역의 배치, 간격 등 시각적 요소 개선.(선택)
+    - [ ] 기타 사용자 경험 향상을 위한 조정.(선택)
 적용 내용: UI 디자인, 사용자 경험 최적화.
 
 ### Task 10: 최종 점검, 버그 수정 및 마무리
@@ -178,7 +178,7 @@
     - [x] Kotlin 파일들을 기능별 패키지(`activities`, `adapter`, `data`)로 구조화 (사용자 직접 수행).
     - [x] 사용하지 않는 Jetpack Compose 관련 `ui/theme` 디렉토리 및 파일 삭제 (사용자 직접 수행).
     - [x] `import` 경로 최적화 및 빌드 경고 수정 완료.
-- [ ] 버그 수정: 테스트 과정에서 발견된 모든 버그를 수정.
-- [ ] 코드 정리: 불필요한 코드를 제거하고, 가독성을 높이기 위해 주석을 추가.
-- [ ] 아이콘 및 이름 설정: `AndroidManifest.xml` 파일을 수정하여 앱 아이콘과 이름을 설정.
+- [x] 버그 수정: 테스트 과정에서 발견된 모든 버그를 수정.
+- [x] 코드 정리: 불필요한 코드를 제거하고, 가독성을 높이기 위해 주석을 추가.
+- [x] 아이콘 및 이름 설정: `AndroidManifest.xml` 파일을 수정하여 앱 아이콘과 이름을 설정.
 - [ ] 최종 테스트: 모든 기능을 처음부터 끝까지 다시 한번 테스트. 

@@ -256,7 +256,7 @@ class MainActivity : AppCompatActivity() {
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle("${titleDate} 기분 선택")
-        builder.setSingleChoiceItems(adapter, currentSelectedPosition) { dialog, which ->
+        builder.setSingleChoiceItems(adapter, currentSelectedPosition) { _, which ->
             adapter.setSelectedPosition(which)
         }
         builder.setPositiveButton("확인") { _, _ ->

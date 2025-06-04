@@ -197,7 +197,7 @@ class ManageMoodsActivity : AppCompatActivity(), ColorPickerDialogListener {
                 val success = customMoodRepository.updateCustomMood(updatedMood)
                 if (success) {
                     Toast.makeText(this, "감정이 수정되었습니다.", Toast.LENGTH_SHORT).show()
-                    updateMoodDataFile(oldColorHex!!, finalMoodColor) // mood_data.txt 업데이트
+                    updateMoodDataFile(oldColorHex, finalMoodColor) // mood_data.txt 업데이트
                 } else {
                     Toast.makeText(this, "감정 수정에 실패했습니다.", Toast.LENGTH_SHORT).show()
                 }
