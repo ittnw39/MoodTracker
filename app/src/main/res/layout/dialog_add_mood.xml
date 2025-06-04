@@ -22,13 +22,38 @@
         android:maxLines="1"
         android:layout_marginBottom="16dp"/>
 
-    <EditText
-        android:id="@+id/etMoodColorHex"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="색상 코드 (예: #FFEB3B)"
-        android:inputType="textCapCharacters"
-        android:maxLines="1"
-        android:maxLength="7" />
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+
+        <EditText
+            android:id="@+id/etMoodColor"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="색상 코드 (예: #FF00FF)"
+            android:inputType="textCapCharacters"
+            android:maxLines="1"
+            android:maxLength="7" />
+
+        <Button
+            android:id="@+id/btnSelectColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="색상 선택" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvColorPreview"
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:text="선택된 색상 미리보기"
+        android:background="#FFFFFF" />
 
 </LinearLayout> 

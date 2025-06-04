@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     private var selectedDateCalendar: Calendar? = null // 사용자가 클릭한 날짜를 저장할 Calendar 인스턴스
 
     private lateinit var customMoodRepository: CustomMoodRepository // Repository 추가
+    private var moodsMap: Map<String, String> = emptyMap() // 기분 데이터를 저장할 멤버 변수
 
     // 기본 감정 데이터 정의 (이름 to 색상 코드)
     private val defaultMoods = mapOf(
@@ -130,14 +131,17 @@ class MainActivity : AppCompatActivity() {
         currentCalendar = Calendar.getInstance()
         selectedDateCalendar = currentCalendar.clone() as Calendar // 초기 선택된 날짜는 오늘
 
+        moodsMap = loadMoodsFromFile() // onCreate에서 기분 데이터 로드
+
         updateCurrentMonthText()
-        updateSelectedMoodInfo(selectedDateCalendar!!)
-        drawCalendar()
+        updateSelectedMoodInfo(selectedDateCalendar!!) // 로드된 moodsMap 사용
+        drawCalendar() // 로드된 moodsMap 사용
 
         // 이전 달 버튼 클릭 이벤트
         btnPrevMonth.setOnClickListener {
             currentCalendar.add(Calendar.MONTH, -1)
             updateCurrentMonthText()
+            // moodsMap은 변경되지 않았으므로 다시 로드할 필요 없음
             updateSelectedMoodInfo(selectedDateCalendar!!)
             drawCalendar()
         }
@@ -158,6 +162,17 @@ class MainActivity : AppCompatActivity() {
                 // 기본적으로 오늘 날짜로 다이얼로그를 띄우거나, 날짜를 먼저 선택하라는 메시지 표시
                 showMoodLogDialog(Calendar.getInstance())
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("MainActivity", "onResume 호출됨 - 데이터 및 달력 새로고침")
+        moodsMap = loadMoodsFromFile() // onResume에서 기분 데이터 다시 로드
+        updateCurrentMonthText() // 달 표시 업데이트
+        drawCalendar() // 달력 새로고침 (변경된 moodsMap 사용)
+        selectedDateCalendar?.let {
+            updateSelectedMoodInfo(it) // 선택된 날짜 정보 업데이트 (변경된 moodsMap 사용)
         }
     }
 
@@ -205,9 +220,10 @@ class MainActivity : AppCompatActivity() {
     private fun updateSelectedMoodInfo(calendar: Calendar) {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val dateKey = sdf.format(calendar.time)
-        val moodColor = loadMoodsFromFile()[dateKey]
+        // 이제 멤버 변수 moodsMap 사용
+        val moodColor = moodsMap[dateKey] 
         
-        val allDisplayableMoods = getAllDisplayableMoods() // 모든 감정 목록 가져오기
+        val allDisplayableMoods = getAllDisplayableMoods()
         val moodName = allDisplayableMoods.find { it.second == moodColor }?.first
 
         if (moodName != null && moodColor != null) {
@@ -223,19 +239,19 @@ class MainActivity : AppCompatActivity() {
 
         val displayableMoods = getAllDisplayableMoods()
         val moodNamesForDialog = displayableMoods.map { it.first }.toTypedArray()
-        val moodColorsForDialog = displayableMoods.map { it.second }.toTypedArray()
+        // val moodColorsForDialog = displayableMoods.map { it.second }.toTypedArray() // 직접 사용되지 않음
 
-        val loadedMoodsFromFile = loadMoodsFromFile() // 파일에서 직접 로드
-        val existingMoodColor = loadedMoodsFromFile[dateKey]
+        // 멤버 변수 moodsMap 사용
+        val existingMoodColor = moodsMap[dateKey] 
         var currentSelectedPosition = 0
         if (existingMoodColor != null) {
-            val index = moodColorsForDialog.indexOf(existingMoodColor)
+            // displayableMoods에서 올바른 인덱스를 찾아야 함
+            val index = displayableMoods.indexOfFirst { it.second == existingMoodColor }
             if (index != -1) {
                 currentSelectedPosition = index
             }
         }
 
-        // MoodListAdapter 생성 시 통합된 감정 목록과 이름 배열 전달
         val adapter = MoodListAdapter(this, displayableMoods.associate { it.first to it.second }, moodNamesForDialog, currentSelectedPosition)
 
         val builder = AlertDialog.Builder(this)
@@ -251,57 +267,65 @@ class MainActivity : AppCompatActivity() {
             }
             val selectedMoodName = displayableMoods[selectedPosition].first
             val selectedMoodColor = displayableMoods[selectedPosition].second
-
-            saveMood(dateKey, selectedMoodColor)
-            Toast.makeText(this, "${dateKey} : $selectedMoodName 기분이 저장되었습니다.", Toast.LENGTH_SHORT).show()
-            updateSelectedMoodInfo(dateToLog) // 선택된 날짜 정보 업데이트
-            drawCalendar() // 달력 다시 그려기
+            saveMoodToFile(dateKey, selectedMoodColor)
+            moodsMap = loadMoodsFromFile() // 기분 저장 후 moodsMap 갱신
+            updateSelectedMoodInfo(dateToLog)
+            drawCalendar()
+            Toast.makeText(this, "${selectedMoodName}이(가) 기록되었습니다.", Toast.LENGTH_SHORT).show()
         }
         builder.setNegativeButton("취소", null)
-        builder.create().show()
+        builder.setNeutralButton("삭제") { _, _ ->
+            deleteMoodFromFile(dateKey)
+            moodsMap = loadMoodsFromFile() // 기분 삭제 후 moodsMap 갱신
+            updateSelectedMoodInfo(dateToLog)
+            drawCalendar()
+            Toast.makeText(this, "기록이 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+        }
+        builder.show()
     }
 
-    private fun saveMood(date: String, colorHexCode: String) {
-        val moodEntry = "$date:$colorHexCode"
-        val file = File(filesDir, moodFileName)
-        val newMoodData = mutableListOf<String>()
-        var entryUpdated = false
-
+    private fun saveMoodToFile(date: String, moodColor: String) {
         try {
-            if (file.exists()) {
-                openFileInput(moodFileName).bufferedReader().useLines { lines ->
-                    lines.forEach { line ->
-                        if (line.startsWith("$date:")) {
-                            newMoodData.add(moodEntry)
-                            entryUpdated = true
-                        } else {
-                            newMoodData.add(line)
-                        }
-                    }
-                }
-            }
-            if (!entryUpdated) {
-                newMoodData.add(moodEntry)
+            val currentMoods = moodsMap.toMutableMap()
+            currentMoods[date] = moodColor
+            
+            val fileContents = StringBuilder()
+            currentMoods.forEach { (d, mc) ->
+                fileContents.append("$d:$mc\n")
             }
 
-            // 새 내용으로 파일 덮어쓰기
-            val fos = openFileOutput(moodFileName, Context.MODE_PRIVATE)
-            newMoodData.forEach { line ->
-                fos.write((line + "\n").toByteArray())
+            openFileOutput(moodFileName, Context.MODE_PRIVATE).use {
+                it.write(fileContents.toString().toByteArray())
             }
-            fos.close()
-            Log.d("MainActivity", "Mood saved for $date: $colorHexCode")
-
         } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "기분 저장 중 오류 발생", Toast.LENGTH_SHORT).show()
-            Log.e("MainActivity", "Error saving mood", e)
+            Log.e("MainActivity", "파일 저장 실패", e)
+            Toast.makeText(this, "기분 저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 
-    // loadMoodsFromFile()는 기존의 mood_data.txt에서 직접 읽는 함수로 유지 (drawCalendar, updateSelectedMoodInfo에서 사용)
+    private fun deleteMoodFromFile(date: String) {
+        try {
+            val currentMoods = moodsMap.toMutableMap()
+            if (currentMoods.containsKey(date)) {
+                currentMoods.remove(date)
+                
+                val fileContents = StringBuilder()
+                currentMoods.forEach { (d, mc) ->
+                    fileContents.append("$d:$mc\n")
+                }
+
+                openFileOutput(moodFileName, Context.MODE_PRIVATE).use {
+                    it.write(fileContents.toString().toByteArray())
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "파일에서 기분 삭제 실패", e)
+            Toast.makeText(this, "기록 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun loadMoodsFromFile(): Map<String, String> {
-        val moodsMap = mutableMapOf<String, String>()
+        val moods = mutableMapOf<String, String>()
         try {
             val file = File(filesDir, moodFileName)
             if (file.exists()) {
@@ -309,23 +333,24 @@ class MainActivity : AppCompatActivity() {
                     lines.forEach { line ->
                         val parts = line.split(":", limit = 2)
                         if (parts.size == 2) {
-                            moodsMap[parts[0]] = parts[1]
+                            moods[parts[0]] = parts[1]
                         }
                     }
                 }
+            } else {
+                Log.i("MainActivity", "$moodFileName 파일이 존재하지 않습니다. 새로 생성될 수 있습니다.")
             }
         } catch (e: FileNotFoundException) {
-            Log.i("MainActivity", "Mood data file not found, creating a new one.")
+            Log.w("MainActivity", "$moodFileName 파일을 찾을 수 없습니다.", e)
         } catch (e: Exception) {
-            e.printStackTrace()
-            Log.e("MainActivity", "Error loading moods", e)
+            Log.e("MainActivity", "$moodFileName 파일 로드 중 오류 발생", e)
         }
-        return moodsMap
+        return moods
     }
 
     private fun drawCalendar() {
         gridCalendar.removeAllViews()
-        val loadedMoods = loadMoodsFromFile()
+        val loadedMoods = moodsMap
 
         // currentCalendar를 복제하여 displayCalendar로 사용 (원본 currentCalendar 변경 방지)
         val displayCalendar = currentCalendar.clone() as Calendar

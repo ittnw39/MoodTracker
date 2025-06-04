@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -7,35 +8,37 @@
     android:gravity="center_vertical">
 
     <View
-        android:id="@+id/viewMoodColor"
+        android:id="@+id/viewMoodColor_custom"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:layout_marginEnd="16dp" />
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/color_circle_placeholder" />
 
     <TextView
-        android:id="@+id/tvMoodName"
+        android:id="@+id/tvMoodName_custom"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textSize="18sp"
-        android:text="사용자 감정 이름" />
+        android:text="감정 이름"
+        android:textSize="16sp" />
 
-    <ImageView
-        android:id="@+id/ivEditMood"
+    <ImageButton
+        android:id="@+id/ibEditMood"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@android:drawable/ic_menu_edit" 
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="감정 수정"
-        android:padding="8dp"
-        android:visibility="gone" /> <!-- 기능 구현 전까지 숨김 -->
+        android:padding="8dp"/>
 
-    <ImageView
-        android:id="@+id/ivDeleteMood"
+    <ImageButton
+        android:id="@+id/ibDeleteMood"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_menu_delete" 
+        android:src="@android:drawable/ic_menu_delete"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="감정 삭제"
         android:padding="8dp"
-        android:visibility="gone" /> <!-- 기능 구현 전까지 숨김 -->
+        android:layout_marginStart="8dp"/>
 
 </LinearLayout> 

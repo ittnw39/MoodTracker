@@ -5,7 +5,7 @@ import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
@@ -69,27 +69,32 @@ class ManageMoodsAdapter(
     }
 
     class CustomMoodViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val moodColorView: View = itemView.findViewById(R.id.viewMoodColor)
-        private val moodNameTextView: TextView = itemView.findViewById(R.id.tvMoodName)
-        private val editButton: ImageView = itemView.findViewById(R.id.ivEditMood)
-        private val deleteButton: ImageView = itemView.findViewById(R.id.ivDeleteMood)
+        private val moodColorView: View = itemView.findViewById(R.id.viewMoodColor_custom)
+        private val moodNameTextView: TextView = itemView.findViewById(R.id.tvMoodName_custom)
+        private val editButton: ImageButton = itemView.findViewById(R.id.ibEditMood)
+        private val deleteButton: ImageButton = itemView.findViewById(R.id.ibDeleteMood)
 
         fun bind(item: MoodListItem.CustomMoodItem, 
                  onItemEdit: (CustomMood) -> Unit, 
                  onItemDelete: (CustomMood) -> Unit) {
             moodNameTextView.text = item.mood.name
-            val color = Color.parseColor(item.mood.colorHex)
-            val drawable = GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(color)
+            try {
+                val color = Color.parseColor(item.mood.colorHex)
+                val drawable = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(color)
+                }
+                moodColorView.background = drawable
+            } catch (e: IllegalArgumentException) {
+                val defaultColorDrawable = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(Color.LTGRAY)
+                }
+                moodColorView.background = defaultColorDrawable
             }
-            moodColorView.background = drawable
 
-            // TODO: 수정 및 삭제 버튼 기능 활성화 및 리스너 연결 (다음 단계에서 진행)
-            // editButton.visibility = View.VISIBLE 
-            // deleteButton.visibility = View.VISIBLE
-            // editButton.setOnClickListener { onItemEdit(item.mood) }
-            // deleteButton.setOnClickListener { onItemDelete(item.mood) }
+            editButton.setOnClickListener { onItemEdit(item.mood) }
+            deleteButton.setOnClickListener { onItemDelete(item.mood) }
         }
     }
 } 
