@@ -112,6 +112,11 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
                 true
             }
+            R.id.action_manage_moods -> { // "감정 관리" 메뉴 선택 시
+                val intent = Intent(this, ManageMoodsActivity::class.java)
+                startActivity(intent)
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

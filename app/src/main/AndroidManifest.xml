@@ -30,6 +30,11 @@
             <!-- android:parentActivityName을 사용하려면 MainActivity의 theme에 NoActionBar가 아니어야 함 -->
             <!-- 또는 직접 ActionBar에 뒤로가기 버튼 구현 필요 -->
         </activity>
+        <activity
+            android:name=".ManageMoodsActivity"
+            android:label="감정 관리"
+            android:parentActivityName=".MainActivity">
+        </activity>
     </application>
 
 </manifest>

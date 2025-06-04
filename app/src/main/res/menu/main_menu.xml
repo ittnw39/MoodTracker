@@ -6,4 +6,10 @@
         android:title="통계 보기"
         android:icon="@android:drawable/ic_menu_sort_by_size"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_manage_moods"
+        android:title="감정 관리"
+        android:icon="@android:drawable/ic_menu_edit" 
+        app:showAsAction="never" />
 </menu> 
